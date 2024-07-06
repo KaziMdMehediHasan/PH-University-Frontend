@@ -1,11 +1,11 @@
 import { Button } from "antd";
 import { FieldValues, useForm } from "react-hook-form"
-import { authApi } from "../redux/Features/auth/authApi";
 import { useAppDispatch } from "../redux/hooks";
 import { setUser, TUser } from "../redux/Features/auth/authSlice";
 import { verifyToken } from "../utils/verifyToken";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import authApi from "../redux/Features/auth/authApi";
 
 export const Login = () => {
     const navigate = useNavigate();
@@ -16,7 +16,8 @@ export const Login = () => {
             password: 'admin123'
         }
     });
-    const [login] = authApi.useLoginMutation();
+    const [login, { isError }] = authApi.useLoginMutation();
+    // console.log(isError);
 
     // console.log('data =>', data);
     // console.log('error =>', error);
@@ -28,7 +29,10 @@ export const Login = () => {
                 id: data.userId,
                 password: data.password
             }
+            console.log(userInfo);
             const res = await login(userInfo).unwrap();
+            console.log(await login(userInfo));
+            console.log(res);
 
             const user = verifyToken(res.data.accessToken) as TUser;
             // console.log(user);
@@ -36,7 +40,7 @@ export const Login = () => {
             navigate(`/${user.role}/dashboard`);
             toast.success('Logged in successfully', { id: toastId, duration: 3000 });
         } catch (error) {
-            toast.error(`${error.data.message}`, { id: toastId, duration: 3000 });
+            toast.error(`Something went wrong`, { id: toastId, duration: 3000 });
         }
     }
     return (
